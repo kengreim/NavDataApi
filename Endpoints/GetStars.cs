@@ -8,25 +8,17 @@ public class GetStarsRequest
     public string AirportId { get; set; } = string.Empty;
 }
 
-public class GetStarsEndpoint : Endpoint<GetStarsRequest, List<CombinedArrival>>
+public class GetStarsEndpoint(ArrivalService arrivalService) : Endpoint<GetStarsRequest, List<CombinedArrival>>
 {
-    private readonly ArrivalService _arrivalService;
-
-    public GetStarsEndpoint(ArrivalService arrivalService)
-    {
-        _arrivalService = arrivalService;
-    }
-
     public override void Configure()
     {
         Get("/arrivals/{AirportId}");
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(GetStarsRequest req, CancellationToken ct)
+    public override Task HandleAsync(GetStarsRequest req, CancellationToken ct)
     {
-        var arrivals = _arrivalService.GetCombinedArrivals(req.AirportId.ToUpperInvariant()).ToList();
-        await SendAsync(arrivals);
+        var arrivals = arrivalService.GetCombinedArrivals(req.AirportId.ToUpperInvariant()).ToList();
+        return SendAsync(arrivals, cancellation: ct);
     }
 }
-

@@ -4,24 +4,24 @@ using NavData.Services.Utilities;
 
 namespace NavData.Services;
 
-public class ArrivalService
+public class DepartureService
 {
     private readonly Data424 _data;
 
-    public ArrivalService(CifpService cifpService)
+    public DepartureService(CifpService cifpService)
     {
         _data = cifpService.Data;
     }
 
-    public IEnumerable<CombinedArrival> GetCombinedArrivals(string airportIdentifier)
+    public IEnumerable<CombinedDeparture> GetCombinedDepartures(string airportIdentifier)
     {
-        var arrivals = _data.AirportArrivals.Where(a => a.Port.Identifier == airportIdentifier);
+        var departures = _data.AirportDepartures.Where(a => a.Port.Identifier == airportIdentifier);
 
-        foreach (var arrival in arrivals)
+        foreach (var departure in departures)
         {
             var combinedSequences = new List<CombinedSequence>();
 
-            foreach (var sequence in arrival.Sequence)
+            foreach (var sequence in departure.Sequence)
             {
                 var points = sequence.Sequence.Select(p =>
                 {
@@ -34,7 +34,7 @@ public class ArrivalService
                         Longitude = p.Fix.Coordinates.Longitude,
                         MinAltitude = min,
                         MaxAltitude = max
-                        //AltitudeType = p.AltitudeDescription.ToString()
+                        //Altitude = AltitudeFormatter.FormatAltitude(p.Altitude)
                     };
                 }).ToList();
 
@@ -48,24 +48,17 @@ public class ArrivalService
                 combinedSequences.Add(combinedSequence);
             }
 
-            yield return new CombinedArrival
+            yield return new CombinedDeparture
             {
-                ArrivalIdentifier = arrival.Identifier,
+                DepartureIdentifier = departure.Identifier,
                 Sequences = combinedSequences
             };
         }
     }
 }
 
-public class CombinedArrival
+public class CombinedDeparture
 {
-    public string ArrivalIdentifier { get; set; } = string.Empty;
-    public List<CombinedSequence> Sequences { get; set; } = [];
-}
-
-public class CombinedSequence
-{
-    public string Transition { get; set; } = string.Empty;
-    public string TransitionType { get; set; } = string.Empty;
-    public List<Point> Points { get; set; } = [];
+    public string DepartureIdentifier { get; set; } = string.Empty;
+    public List<CombinedSequence> Sequences { get; set; } = new();
 }

@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder();
 var lines = File.ReadLines("CIFP/FAACIFP18");
 builder.Services.AddSingleton(new CifpService(lines));
 builder.Services.AddScoped<ArrivalService>();
+builder.Services.AddScoped<DepartureService>();
 
 builder.Services.AddFastEndpoints();
 
