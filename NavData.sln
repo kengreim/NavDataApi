@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NavData", "NavData.csproj", "{BB6A5D82-5474-4C2B-85B2-BBF034E21AAE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BB6A5D82-5474-4C2B-85B2-BBF034E21AAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB6A5D82-5474-4C2B-85B2-BBF034E21AAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB6A5D82-5474-4C2B-85B2-BBF034E21AAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB6A5D82-5474-4C2B-85B2-BBF034E21AAE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
