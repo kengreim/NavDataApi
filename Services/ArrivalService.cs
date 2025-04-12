@@ -15,7 +15,16 @@ public class ArrivalService
 
     public IEnumerable<CombinedArrival> GetCombinedArrivals(string airportIdentifier)
     {
-        var arrivals = _data.AirportArrivals.Where(a => a.Port.Identifier == airportIdentifier);
+        var arrivals = _data.AirportArrivals.Where(a =>
+                a.Port.Identifier.Equals(airportIdentifier, StringComparison.InvariantCultureIgnoreCase))
+            .ToList();
+        if (arrivals.Count == 0)
+        {
+            arrivals = _data.AirportArrivals.Where(a =>
+                    a.Port.Designator is not null && a.Port.Designator.Equals(airportIdentifier,
+                        StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
+        }
 
         foreach (var arrival in arrivals)
         {
