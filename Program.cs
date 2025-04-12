@@ -11,10 +11,13 @@ builder.Services.AddSingleton(new CifpService(lines));
 builder.Services.AddScoped<ArrivalService>();
 builder.Services.AddScoped<DepartureService>();
 
+builder.Services.AddControllers();
+
 builder.Services.AddFastEndpoints();
 
 var app = builder.Build();
 app.UseFastEndpoints();
+app.UseCors(corsBuilder => corsBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.Run();
 
 // var lines = File.ReadLines("CIFP/FAACIFP18");
