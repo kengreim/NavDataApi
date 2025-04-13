@@ -11,7 +11,6 @@ COPY ["NavData.csproj", "./"]
 RUN dotnet restore "NavData.csproj"
 COPY . .
 WORKDIR "/src/"
-RUN npm install 
 RUN dotnet build "NavData.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
