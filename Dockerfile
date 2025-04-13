@@ -3,8 +3,8 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /source
 
 # copy csproj and restore as distinct layers
-COPY NavDataApi.sln .
-COPY NavDataApi.csproj ./aspnetapp/
+COPY NavData.sln .
+COPY NavData.csproj ./aspnetapp/
 RUN dotnet restore
 
 # copy everything else and build app
