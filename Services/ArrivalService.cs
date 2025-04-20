@@ -1,26 +1,24 @@
-using Arinc424;
 using NavData.Services.Models;
 using NavData.Services.Utilities;
 
 namespace NavData.Services;
 
-public class ArrivalService
+public class ArrivalService(CifpService cifpService)
 {
-    private readonly Data424 _data;
-
-    public ArrivalService(CifpService cifpService)
-    {
-        _data = cifpService.Data;
-    }
 
     public IEnumerable<CombinedArrival> GetCombinedArrivals(string airportIdentifier)
     {
-        var arrivals = _data.AirportArrivals.Where(a =>
+        if (cifpService.Data is null)
+        {
+            throw new Exception("CifpService data is null");
+        }
+        
+        var arrivals = cifpService.Data.AirportArrivals.Where(a =>
                 a.Port.Identifier.Equals(airportIdentifier, StringComparison.InvariantCultureIgnoreCase))
             .ToList();
         if (arrivals.Count == 0)
         {
-            arrivals = _data.AirportArrivals.Where(a =>
+            arrivals = cifpService.Data.AirportArrivals.Where(a =>
                     a.Port.Designator is not null && a.Port.Designator.Equals(airportIdentifier,
                         StringComparison.InvariantCultureIgnoreCase))
                 .ToList();

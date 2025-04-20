@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="arinc424" Version="0.1.7"/>
+        <PackageReference Include="Coravel" Version="6.0.2" />
         <PackageReference Include="FastEndpoints" Version="5.35.0"/>
     </ItemGroup>
 

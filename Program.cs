@@ -1,4 +1,5 @@
-﻿using FastEndpoints;
+﻿using Coravel;
+using FastEndpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using NavData.Services;
@@ -6,8 +7,12 @@ using NavData.Services;
 var builder = WebApplication.CreateBuilder();
 
 // Add the CIFP service as a singleton
-var lines = File.ReadLines("CIFP/FAACIFP18");
-builder.Services.AddSingleton(new CifpService(lines));
+builder.Services.AddSingleton<CifpService>();
+
+// Add the CIFP update service as an Invocable
+builder.Services.AddScheduler();
+builder.Services.AddTransient<CifpUpdateService>();
+
 builder.Services.AddScoped<ArrivalService>();
 builder.Services.AddScoped<DepartureService>();
 
@@ -18,6 +23,7 @@ builder.Services.AddFastEndpoints();
 var app = builder.Build();
 app.UseFastEndpoints();
 app.UseCors(corsBuilder => corsBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+app.Services.UseScheduler(scheduler => { scheduler.Schedule<CifpUpdateService>().Hourly().RunOnceAtStart(); });
 app.Run();
 
 // var lines = File.ReadLines("CIFP/FAACIFP18");
