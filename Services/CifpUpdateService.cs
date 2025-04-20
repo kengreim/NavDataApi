@@ -80,13 +80,7 @@ public class CifpUpdateService(CifpService cifpService, ILogger<CifpUpdateServic
 
                 using (var reader = new StreamReader(faacifpEntry.Open()))
                 {
-                    List<string> lines = [];
-                    while (await reader.ReadLineAsync(CancellationToken) is { } line)
-                    {
-                        lines.Add(line);
-                    }
-
-                    cifpService.UpdateCifp(lines);
+                    cifpService.UpdateCifp(ReadLinesAsync(reader));
                 }
             }
 
@@ -97,6 +91,14 @@ public class CifpUpdateService(CifpService cifpService, ILogger<CifpUpdateServic
         {
             logger.LogError(ex, "Failed to download and extract CIFP data");
             throw;
+        }
+    }
+
+    private async IAsyncEnumerable<string> ReadLinesAsync(StreamReader reader)
+    {
+        while (await reader.ReadLineAsync(CancellationToken) is { } line)
+        {
+            yield return line;
         }
     }
 }
