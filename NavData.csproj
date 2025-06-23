@@ -13,4 +13,10 @@
         <PackageReference Include="FastEndpoints" Version="5.35.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="FAACIFP18">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

@@ -16,19 +16,13 @@ public class CifpUpdateService(CifpService cifpService, ILogger<CifpUpdateServic
 
     public async Task Invoke()
     {
-        while (!CancellationToken.IsCancellationRequested)
+        try
         {
-            try
-            {
-                await CheckForUpdatesAsync();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error checking for CIFP updates");
-            }
-
-            // Wait for an hour before checking again
-            await Task.Delay(TimeSpan.FromHours(1), CancellationToken);
+            await CheckForUpdatesAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error checking for CIFP updates");
         }
     }
 
@@ -54,8 +48,19 @@ public class CifpUpdateService(CifpService cifpService, ILogger<CifpUpdateServic
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to check for CIFP updates");
-            throw;
+            logger.LogError(ex, "Failed to check for CIFP updates. Falling back to local FAACIFP18 file if available.");
+            // Fallback: use local FAACIFP18 if it exists
+            var localPath = Path.Combine(Directory.GetCurrentDirectory(), "FAACIFP18");
+            if (File.Exists(localPath) && cifpService.Data is null)
+            {
+                logger.LogInformation("Using local FAACIFP18 file as fallback.");
+                using var reader = new StreamReader(localPath);
+                cifpService.UpdateCifp(ReadLinesAsync(reader));
+            }
+            else
+            {
+                logger.LogWarning("No local FAACIFP18 file found for fallback.");
+            }
         }
     }
 
