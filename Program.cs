@@ -15,6 +15,7 @@ builder.Services.AddTransient<CifpUpdateService>();
 
 builder.Services.AddScoped<ArrivalService>();
 builder.Services.AddScoped<DepartureService>();
+builder.Services.AddScoped<ApproachService>();
 
 builder.Services.AddControllers();
 

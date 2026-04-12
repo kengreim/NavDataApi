@@ -26,6 +26,6 @@ public class GetSidsEndpoint : Endpoint<GetSidsRequest, List<CombinedDeparture>>
     public override async Task HandleAsync(GetSidsRequest req, CancellationToken ct)
     {
         var departures = _departureService.GetCombinedDepartures(req.AirportId.ToUpperInvariant()).ToList();
-        await SendAsync(departures);
+        await Send.OkAsync(departures, ct);
     }
-} 
+}

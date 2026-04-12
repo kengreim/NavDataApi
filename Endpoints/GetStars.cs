@@ -19,6 +19,6 @@ public class GetStarsEndpoint(ArrivalService arrivalService) : Endpoint<GetStars
     public override Task HandleAsync(GetStarsRequest req, CancellationToken ct)
     {
         var arrivals = arrivalService.GetCombinedArrivals(req.AirportId.ToUpperInvariant()).ToList();
-        return SendAsync(arrivals, cancellation: ct);
+        return Send.OkAsync(arrivals, ct);
     }
 }

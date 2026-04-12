@@ -41,7 +41,7 @@ public class DepartureService
                 var combinedSequence = new CombinedSequence
                 {
                     Transition = sequence.Transition,
-                    TransitionType = sequence.Type.ToString(),
+                    TransitionType = sequence.Types.ToString(),
                     Points = points
                 };
 
@@ -60,5 +60,5 @@ public class DepartureService
 public class CombinedDeparture
 {
     public string DepartureIdentifier { get; set; } = string.Empty;
-    public List<CombinedSequence> Sequences { get; set; } = new();
+    public List<CombinedSequence> Sequences { get; set; } = [];
 }

@@ -3,31 +3,32 @@ using NavData.Services.Utilities;
 
 namespace NavData.Services;
 
-public class ArrivalService(CifpService cifpService)
+public class ApproachService(CifpService cifpService)
 {
-    public IEnumerable<CombinedArrival> GetCombinedArrivals(string airportIdentifier)
+    public IEnumerable<CombinedApproach> GetCombinedApproaches(string airportIdentifier)
     {
         if (cifpService.Data is null)
         {
             throw new Exception("CifpService data is null");
         }
 
-        var arrivals = cifpService.Data.AirportArrivals.Where(a =>
+        var approaches = cifpService.Data.AirportApproaches.Where(a =>
                 a.Port.Identifier.Equals(airportIdentifier, StringComparison.InvariantCultureIgnoreCase))
             .ToList();
-        if (arrivals.Count == 0)
+
+        if (approaches.Count == 0)
         {
-            arrivals = cifpService.Data.AirportArrivals.Where(a =>
+            approaches = cifpService.Data.AirportApproaches.Where(a =>
                     a.Port.Designator is not null && a.Port.Designator.Equals(airportIdentifier,
                         StringComparison.InvariantCultureIgnoreCase))
                 .ToList();
         }
 
-        foreach (var arrival in arrivals)
+        foreach (var approach in approaches)
         {
             var combinedSequences = new List<CombinedSequence>();
 
-            foreach (var sequence in arrival.Sequence)
+            foreach (var sequence in approach.Sequence)
             {
                 var points = sequence.Sequence.Select(p =>
                 {
@@ -40,7 +41,6 @@ public class ArrivalService(CifpService cifpService)
                         Longitude = p.Fix.Coordinates.Longitude,
                         MinAltitude = min,
                         MaxAltitude = max
-                        //AltitudeType = p.AltitudeDescription.ToString()
                     };
                 }).ToList();
 
@@ -54,24 +54,17 @@ public class ArrivalService(CifpService cifpService)
                 combinedSequences.Add(combinedSequence);
             }
 
-            yield return new CombinedArrival
+            yield return new CombinedApproach
             {
-                ArrivalIdentifier = arrival.Identifier,
+                ApproachIdentifier = approach.Identifier,
                 Sequences = combinedSequences
             };
         }
     }
 }
 
-public class CombinedArrival
+public class CombinedApproach
 {
-    public string ArrivalIdentifier { get; set; } = string.Empty;
+    public string ApproachIdentifier { get; set; } = string.Empty;
     public List<CombinedSequence> Sequences { get; set; } = [];
-}
-
-public class CombinedSequence
-{
-    public string Transition { get; set; } = string.Empty;
-    public string TransitionType { get; set; } = string.Empty;
-    public List<Point> Points { get; set; } = [];
 }
