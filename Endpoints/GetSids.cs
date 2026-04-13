@@ -8,24 +8,17 @@ public class GetSidsRequest
     public string AirportId { get; set; } = string.Empty;
 }
 
-public class GetSidsEndpoint : Endpoint<GetSidsRequest, List<CombinedDeparture>>
+public class GetSidsEndpoint(DepartureService departureService) : Endpoint<GetSidsRequest, List<CombinedDeparture>>
 {
-    private readonly DepartureService _departureService;
-
-    public GetSidsEndpoint(DepartureService departureService)
-    {
-        _departureService = departureService;
-    }
-
     public override void Configure()
     {
         Get("/departures/{AirportId}");
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(GetSidsRequest req, CancellationToken ct)
+    public override Task HandleAsync(GetSidsRequest req, CancellationToken ct)
     {
-        var departures = _departureService.GetCombinedDepartures(req.AirportId.ToUpperInvariant()).ToList();
-        await Send.OkAsync(departures, ct);
+        var departures = departureService.GetCombinedDepartures(req.AirportId.ToUpperInvariant()).ToList();
+        return Send.OkAsync(departures, ct);
     }
 }
