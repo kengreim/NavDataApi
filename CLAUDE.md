@@ -39,8 +39,11 @@ FastEndpoints (v7) auto-discovers endpoint classes under `Endpoints/`. Current r
 - `GET /departures/{AirportId}` → `GetSidsEndpoint` → `DepartureService.GetCombinedDepartures` → `List<CombinedDeparture>`
 - `GET /arrivals/{AirportId}` → `GetStarsEndpoint` → `ArrivalService.GetCombinedArrivals` → `List<CombinedArrival>`
 - `GET /approaches/{AirportId}` → `GetApproachesEndpoint` → `ApproachService.GetCombinedApproaches` → `List<CombinedApproach>`
+- `GET /points/{Identifier}` → `GetPointEndpoint` → `PointService.GetPointsByIdentifier` → `List<PointLookupResult>`
 
-All three endpoints uppercase the `AirportId` before lookup, and all three services try `Port.Identifier` first then fall back to `Port.Designator`. Keep them in sync — if you add metadata to one, add it to all three; the scaffolding is deliberately identical and diff-reviewable side-by-side. All three endpoints return responses via the FastEndpoints 7 `Send.OkAsync(...)` API, not the older `SendAsync`.
+The three airport-keyed endpoints uppercase the `AirportId` before lookup, and all three services try `Port.Identifier` first then fall back to `Port.Designator`. Keep them in sync — if you add metadata to one, add it to all three; the scaffolding is deliberately identical and diff-reviewable side-by-side. All endpoints return responses via the FastEndpoints 7 `Send.OkAsync(...)` API, not the older `SendAsync`.
+
+The points endpoint searches `EnrouteWaypoints`, `AirportTerminalWaypoints`, `HeliportTerminalWaypoints`, `Omnidirects` (VHF navaids), and `Nondirects` (NDBs), returning **all** matches because ARINC 424 identifiers are not globally unique (e.g. `JFK` is a VOR-DME and a terminal waypoint). Each result carries a `Type` discriminator; terminal waypoints and terminal VORs also carry an `AirportIdentifier`. `Data424.Waypoints` is intentionally skipped — per the arinc424 docs it's a superset of the three typed sub-collections, and iterating it would produce duplicates.
 
 CORS is wide open: `Program.cs:25` calls `AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()`. Any future auth, cookie, or hosting work needs to revisit this before it becomes a problem.
 
