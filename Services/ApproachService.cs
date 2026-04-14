@@ -49,7 +49,7 @@ public class ApproachService(CifpService cifpService)
 
                 var combinedSequence = new CombinedSequence
                 {
-                    Transition = sequence.Transition,
+                    Transition = sequence.Transition ?? string.Empty,
                     TransitionType = sequence.Types.ToString(),
                     Points = points
                 };

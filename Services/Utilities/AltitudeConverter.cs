@@ -26,8 +26,8 @@ public static class AltitudeConverter
             AltitudeDescription.OptionalAtAbove => (formatted1, formatted2),
             AltitudeDescription.AtVerticalSecondAtAboveFirst => (formatted1, null),
             AltitudeDescription.AtVerticalSecondAtFirst => (formatted1, formatted1),
-            AltitudeDescription.AtVerticalSecondAtBelowFirst => (null, formatted1)
-            //_ => throw new ArgumentOutOfRangeException(nameof(altitudeDescription), altitudeDescription, null)
+            AltitudeDescription.AtVerticalSecondAtBelowFirst => (null, formatted1),
+            _ => throw new ArgumentOutOfRangeException(nameof(altitudeDescription), altitudeDescription, null)
         };
     }
 }

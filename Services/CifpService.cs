@@ -6,8 +6,8 @@ namespace NavData.Services;
 public class CifpService
 {
     public Data424? Data { get; private set; }
-    public FrozenDictionary<Record424, Diagnostic[]> Invalid { get; private set; }
-    public string[] Skipped { get; private set; }
+    public FrozenDictionary<Record424, Diagnostic[]> Invalid { get; private set; } = FrozenDictionary<Record424, Diagnostic[]>.Empty;
+    public string[] Skipped { get; private set; } = [];
 
     public bool UpdateCifp(IAsyncEnumerable<string> strings)
     {

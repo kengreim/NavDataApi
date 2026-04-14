@@ -64,7 +64,7 @@ Response shape: `CombinedArrival` / `CombinedDeparture` / `CombinedApproach` liv
 
 ### Altitude handling
 
-`AltitudeConverter.ToAltitudeLimitsStrings` maps the ARINC 424 `AltitudeDescription` enum into `(min, max)` strings via `AltitudeFormatter`. All currently-known enum cases are handled (glide/vertical/optional variants were added on this branch for approaches) and the `_ =>` fallthrough is commented out. That means a future `arinc424` release that introduces a new enum value will throw `SwitchExpressionException` at runtime rather than `ArgumentOutOfRangeException` — if you see one, add the case here rather than re-adding a catch-all.
+`AltitudeConverter.ToAltitudeLimitsStrings` maps the ARINC 424 `AltitudeDescription` enum into `(min, max)` strings via `AltitudeFormatter`. All currently-known enum cases are handled (glide/vertical/optional variants were added on this branch for approaches), with a `_ => throw new ArgumentOutOfRangeException(...)` catch-all matching the pattern in `AltitudeFormatter`. A future `arinc424` release that introduces a new enum value will surface as an `ArgumentOutOfRangeException` at runtime — add the case here when you see one.
 
 ## External dependencies
 
