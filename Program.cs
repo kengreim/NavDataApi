@@ -2,7 +2,6 @@
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using NavData.Services;
 using NavData.Swagger;
@@ -39,10 +38,6 @@ builder.Services.SwaggerDocument(o =>
 var app = builder.Build();
 app.UseFastEndpoints();
 app.UseOpenApi(c => c.Path = "/openapi/{documentName}.json");
-app.MapGet("/scalar-config.js", () => Results.Text(
-        "export default { telemetry: false };",
-        contentType: "application/javascript"))
-   .ExcludeFromDescription();
 app.MapScalarApiReference(o =>
 {
     o.AddDocument(documentName: "v1", title: "v1", isDefault: false);
@@ -50,7 +45,7 @@ app.MapScalarApiReference(o =>
     o.Theme = ScalarTheme.Purple;
     o.Title = "NavDataApi";
     o.SchemaPropertyOrder = PropertyOrder.Preserve;
-    o.JavaScriptConfiguration = "/scalar-config.js";
+    o.Telemetry = false;
 });
 app.UseCors(corsBuilder => corsBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.Services.UseScheduler(scheduler => { scheduler.Schedule<CifpUpdateService>().Hourly().RunOnceAtStart(); });
