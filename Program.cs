@@ -1,8 +1,12 @@
 ﻿using Coravel;
 using FastEndpoints;
+using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using NavData.Services;
+using NavData.Swagger;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder();
 
@@ -21,9 +25,33 @@ builder.Services.AddScoped<PointService>();
 builder.Services.AddControllers();
 
 builder.Services.AddFastEndpoints();
+builder.Services.SwaggerDocument(o =>
+{
+    o.DocumentSettings = s =>
+    {
+        s.DocumentName = "v1";
+        s.Title = "NavDataApi";
+        s.Version = "v1";
+        s.DocumentProcessors.Add(new TagOrderProcessor("V1"));
+    };
+});
 
 var app = builder.Build();
 app.UseFastEndpoints();
+app.UseOpenApi(c => c.Path = "/openapi/{documentName}.json");
+app.MapGet("/scalar-config.js", () => Results.Text(
+        "export default { telemetry: false };",
+        contentType: "application/javascript"))
+   .ExcludeFromDescription();
+app.MapScalarApiReference(o =>
+{
+    o.AddDocument(documentName: "v1", title: "v1", isDefault: false);
+    o.Layout = ScalarLayout.Modern;
+    o.Theme = ScalarTheme.Purple;
+    o.Title = "NavDataApi";
+    o.SchemaPropertyOrder = PropertyOrder.Preserve;
+    o.JavaScriptConfiguration = "/scalar-config.js";
+});
 app.UseCors(corsBuilder => corsBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.Services.UseScheduler(scheduler => { scheduler.Schedule<CifpUpdateService>().Hourly().RunOnceAtStart(); });
 app.Run();
