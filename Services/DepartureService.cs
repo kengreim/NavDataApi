@@ -1,21 +1,27 @@
-using Arinc424;
 using NavData.Services.Models;
 using NavData.Services.Utilities;
 
 namespace NavData.Services;
 
-public class DepartureService
+public class DepartureService(CifpService cifpService)
 {
-    private readonly Data424 _data;
-
-    public DepartureService(CifpService cifpService)
-    {
-        _data = cifpService.Data;
-    }
-
     public IEnumerable<CombinedDeparture> GetCombinedDepartures(string airportIdentifier)
     {
-        var departures = _data.AirportDepartures.Where(a => a.Port.Identifier == airportIdentifier);
+        if (cifpService.Data is null)
+        {
+            throw new Exception("CifpService data is null");
+        }
+
+        var departures = cifpService.Data.AirportDepartures.Where(a =>
+                a.Port.Identifier.Equals(airportIdentifier, StringComparison.InvariantCultureIgnoreCase))
+            .ToList();
+        if (departures.Count == 0)
+        {
+            departures = cifpService.Data.AirportDepartures.Where(a =>
+                    a.Port.Designator is not null && a.Port.Designator.Equals(airportIdentifier,
+                        StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
+        }
 
         foreach (var departure in departures)
         {
@@ -29,12 +35,14 @@ public class DepartureService
                         AltitudeConverter.ToAltitudeLimitsStrings(p.Altitude, p.Altitude2, p.AltitudeDescription);
                     return new Point
                     {
-                        Identifier = p.Fix.Identifier,
-                        Latitude = p.Fix.Coordinates.Latitude,
-                        Longitude = p.Fix.Coordinates.Longitude,
+                        Identifier = p.Fix?.Identifier,
+                        Latitude = p.Fix?.Coordinates.Latitude,
+                        Longitude = p.Fix?.Coordinates.Longitude,
                         MinAltitude = min,
-                        MaxAltitude = max
-                        //Altitude = AltitudeFormatter.FormatAltitude(p.Altitude)
+                        MaxAltitude = max,
+                        LegType = p.LegType.ToString(),
+                        Course = p.Course.Value,
+                        Descriptions = p.Descriptions == 0 ? [] : p.Descriptions.ToString().Split(", ")
                     };
                 }).ToList();
 

@@ -36,11 +36,14 @@ public class ApproachService(CifpService cifpService)
                         AltitudeConverter.ToAltitudeLimitsStrings(p.Altitude, p.Altitude2, p.AltitudeDescription);
                     return new Point
                     {
-                        Identifier = p.Fix.Identifier,
-                        Latitude = p.Fix.Coordinates.Latitude,
-                        Longitude = p.Fix.Coordinates.Longitude,
+                        Identifier = p.Fix?.Identifier,
+                        Latitude = p.Fix?.Coordinates.Latitude,
+                        Longitude = p.Fix?.Coordinates.Longitude,
                         MinAltitude = min,
-                        MaxAltitude = max
+                        MaxAltitude = max,
+                        LegType = p.LegType.ToString(),
+                        Course = p.Course.Value,
+                        Descriptions = p.Descriptions == 0 ? [] : p.Descriptions.ToString().Split(", ")
                     };
                 }).ToList();
 

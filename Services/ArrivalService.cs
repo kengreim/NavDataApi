@@ -15,6 +15,7 @@ public class ArrivalService(CifpService cifpService)
         var arrivals = cifpService.Data.AirportArrivals.Where(a =>
                 a.Port.Identifier.Equals(airportIdentifier, StringComparison.InvariantCultureIgnoreCase))
             .ToList();
+
         if (arrivals.Count == 0)
         {
             arrivals = cifpService.Data.AirportArrivals.Where(a =>
@@ -35,12 +36,14 @@ public class ArrivalService(CifpService cifpService)
                         AltitudeConverter.ToAltitudeLimitsStrings(p.Altitude, p.Altitude2, p.AltitudeDescription);
                     return new Point
                     {
-                        Identifier = p.Fix.Identifier,
-                        Latitude = p.Fix.Coordinates.Latitude,
-                        Longitude = p.Fix.Coordinates.Longitude,
+                        Identifier = p.Fix?.Identifier,
+                        Latitude = p.Fix?.Coordinates.Latitude,
+                        Longitude = p.Fix?.Coordinates.Longitude,
                         MinAltitude = min,
-                        MaxAltitude = max
-                        //AltitudeType = p.AltitudeDescription.ToString()
+                        MaxAltitude = max,
+                        LegType = p.LegType.ToString(),
+                        Course = p.Course.Value,
+                        Descriptions = p.Descriptions == 0 ? [] : p.Descriptions.ToString().Split(", ")
                     };
                 }).ToList();
 
@@ -67,11 +70,4 @@ public class CombinedArrival
 {
     public string ArrivalIdentifier { get; set; } = string.Empty;
     public List<CombinedSequence> Sequences { get; set; } = [];
-}
-
-public class CombinedSequence
-{
-    public string Transition { get; set; } = string.Empty;
-    public string TransitionType { get; set; } = string.Empty;
-    public List<Point> Points { get; set; } = [];
 }
