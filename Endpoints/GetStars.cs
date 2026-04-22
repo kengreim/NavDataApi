@@ -12,8 +12,14 @@ public class GetStarsEndpoint(ArrivalService arrivalService) : Endpoint<GetStars
 {
     public override void Configure()
     {
-        Get("/arrivals/{AirportId}");
+        Get("/arrivals/{AirportId}", "/v1/arrivals/{AirportId}");
         AllowAnonymous();
+        Summary(s =>
+        {
+            s.Summary = "List STARs (arrival procedures) for an airport";
+            s.Description = "Returns all STARs for the given ICAO/FAA airport identifier.";
+            s.Response<List<CombinedArrival>>(200, "Combined STARs for the airport");
+        });
     }
 
     public override Task HandleAsync(GetStarsRequest req, CancellationToken ct)

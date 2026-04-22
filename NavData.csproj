@@ -8,9 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="arinc424" Version="0.3.2"/>
+        <PackageReference Include="arinc424" Version="0.3.3"/>
         <PackageReference Include="Coravel" Version="6.0.2"/>
-        <PackageReference Include="FastEndpoints" Version="7.1.1"/>
+        <PackageReference Include="FastEndpoints" Version="8.1.0"/>
+        <PackageReference Include="FastEndpoints.Swagger" Version="8.1.0"/>
+        <PackageReference Include="Scalar.AspNetCore" Version="2.13.22"/>
     </ItemGroup>
 
     <ItemGroup>

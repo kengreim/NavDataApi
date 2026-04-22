@@ -13,8 +13,15 @@ public class GetPointEndpoint(PointService pointService) : Endpoint<GetPointRequ
 {
     public override void Configure()
     {
-        Get("/points/{Identifier}");
+        Get("/points/{Identifier}", "/v1/points/{Identifier}");
         AllowAnonymous();
+        Summary(s =>
+        {
+            s.Summary = "Look up navigation points by identifier";
+            s.Description = "Returns all navigation points (waypoints, VHF navaids, NDBs) matching the given ARINC 424 identifier. " +
+                            "Identifiers are not globally unique, so multiple results may be returned with a Type discriminator. ";
+            s.Response<List<PointLookupResult>>(200, "Matching points (possibly multiple per identifier)");
+        });
     }
 
     public override Task HandleAsync(GetPointRequest req, CancellationToken ct)
