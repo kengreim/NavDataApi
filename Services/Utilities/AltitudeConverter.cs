@@ -19,15 +19,15 @@ public static class AltitudeConverter
             AltitudeDescription.AtAboveAtBelow => (formatted2, formatted1),
             AltitudeDescription.AtAboveSecond => (formatted2, null),
             AltitudeDescription.NotBeforeAtAboveSecond => (formatted2, null),
-            // AltitudeDescription.GlideSecondAtFirst => expr,
-            // AltitudeDescription.GlideSecondAtAboveFirst => expr,
-            // AltitudeDescription.GlideInterceptSecondAtFirst => expr,
-            // AltitudeDescription.GlideInterceptSecondAtAboveFirst => expr,
-            // AltitudeDescription.OptionalAtAbove => expr,
-            // AltitudeDescription.AtVerticalSecondAtAboveFirst => expr,
-            // AltitudeDescription.AtVerticalSecondAtFirst => expr,
-            // AltitudeDescription.AtVerticalSecondAtBelowFirst => expr,
-            _ => throw new ArgumentOutOfRangeException(nameof(altitudeDescription), altitudeDescription, null)
+            AltitudeDescription.GlideSecondAtFirst => (formatted1, formatted1),
+            AltitudeDescription.GlideSecondAtAboveFirst => (formatted1, null),
+            AltitudeDescription.GlideInterceptSecondAtFirst => (formatted1, formatted1),
+            AltitudeDescription.GlideInterceptSecondAtAboveFirst => (formatted1, null),
+            AltitudeDescription.OptionalAtAbove => (formatted1, formatted2),
+            AltitudeDescription.AtVerticalSecondAtAboveFirst => (formatted1, null),
+            AltitudeDescription.AtVerticalSecondAtFirst => (formatted1, formatted1),
+            AltitudeDescription.AtVerticalSecondAtBelowFirst => (null, formatted1)
+            //_ => throw new ArgumentOutOfRangeException(nameof(altitudeDescription), altitudeDescription, null)
         };
     }
 }
