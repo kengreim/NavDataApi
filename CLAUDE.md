@@ -29,7 +29,7 @@ The FAA CIFP data is the single source of truth and is loaded into memory at sta
 ### Service lifetimes (important gotcha)
 
 - `CifpService` — **singleton**, holds the mutable `Data424?`.
-- `ArrivalService` / `DepartureService` / `ApproachService` / `PointService` — **scoped**, depend on `CifpService`. All four use primary constructors and dereference `cifpService.Data` lazily inside their `Get*` methods, throwing if null.
+- `ArrivalService` / `DepartureService` / `ApproachService` / `PointService` / `AirportService` / `AirwayService` — **scoped**, depend on `CifpService`. All use primary constructors and dereference `cifpService.Data` lazily inside their `Get*` methods, throwing if null.
 - Because the local-file fallback was removed, `cifpService.Data` is `null` until the first successful FAA fetch completes. Any request arriving in that window will throw — the services surface it as a clean `Exception("CifpService data is null")` rather than an NPE, but the 500 response is the same either way. If you touch the load flow, preserve the invariant that `Data` is populated before the app starts serving, or add a proper 503 path.
 
 ### Endpoints
@@ -40,12 +40,18 @@ FastEndpoints 8 auto-discovers endpoint classes under `Endpoints/`. Every route 
 - `GET /arrivals/{AirportId}` (and `/v1/...`) → `GetStarsEndpoint` → `ArrivalService.GetCombinedArrivals` → `List<CombinedArrival>`
 - `GET /approaches/{AirportId}` (and `/v1/...`) → `GetApproachesEndpoint` → `ApproachService.GetCombinedApproaches` → `List<CombinedApproach>`
 - `GET /points/{Identifier}` (and `/v1/...`) → `GetPointEndpoint` → `PointService.GetPointsByIdentifier` → `List<PointLookupResult>`
+- `GET /airports/{AirportId}` (and `/v1/...`) → `GetAirportEndpoint` → `AirportService.GetAirportInfo` → `AirportInfo` (returns 404 if not found)
+- `GET /airways/{Identifier}` (and `/v1/...`) → `GetAirwaysEndpoint` → `AirwayService.GetCombinedAirways` → `List<CombinedAirway>`
 
-The three airport-keyed endpoints uppercase the `AirportId` before lookup, and all three services try `Port.Identifier` first then fall back to `Port.Designator`. Keep them in sync — if you add metadata to one, add it to all three; the scaffolding is deliberately identical and diff-reviewable side-by-side. All endpoints return responses via the FastEndpoints 8 `Send.OkAsync(...)` API, not the older `SendAsync`. Each `Configure()` also sets an OpenAPI `Summary(...)` — keep those populated when adding or renaming endpoints because they feed the Scalar UI directly.
+The three procedure endpoints (departures, arrivals, approaches) uppercase the `AirportId` before lookup, and all three services try `Port.Identifier` first then fall back to `Port.Designator`. Keep them in sync — if you add metadata to one, add it to all three; the scaffolding is deliberately identical and diff-reviewable side-by-side. The airport endpoint uses the same dual-lookup pattern but returns a single object or 404 instead of a list. All endpoints return responses via the FastEndpoints 8 `Send.OkAsync(...)` API, not the older `SendAsync`. Each `Configure()` also sets an OpenAPI `Summary(...)` — keep those populated when adding or renaming endpoints because they feed the Scalar UI directly.
 
 The points endpoint searches `EnrouteWaypoints`, `AirportTerminalWaypoints`, `HeliportTerminalWaypoints`, `Omnidirects` (VHF navaids), and `Nondirects` (NDBs), returning **all** matches because ARINC 424 identifiers are not globally unique (e.g. `JFK` is a VOR-DME and a terminal waypoint). Each result carries a `Type` discriminator; terminal waypoints and terminal VORs also carry an `AirportIdentifier`. `Data424.Waypoints` is intentionally skipped — per the arinc424 docs it's a superset of the three typed sub-collections, and iterating it would produce duplicates.
 
 CORS is wide open: `Program.cs:50` calls `AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()`. Any future auth, cookie, or hosting work needs to revisit this before it becomes a problem.
+
+**Airport metadata:** `AirportInfo` lives alongside `AirportService` and exposes: `Identifier` (ICAO), `IcaoCode` (two-char region), `Designator` (IATA, nullable), `Name`, `Latitude`/`Longitude`, `Elevation`, `Variation` (magnetic deviation in degrees), `CourseType` (Magnetic/True), `TimeZone`, `Privacy`, `LongestRunwayLength`, `LongestRunwayType`. All enums are serialized as strings via `.ToString()`.
+
+**Airway response shape:** `CombinedAirway` (identifier + points list) and `AirwayFixPoint` live alongside `AirwayService`. Unlike procedure points, airway `Fix` is never null — all fields (`Identifier`, `Latitude`, `Longitude`) are non-nullable. Altitudes use `AltitudeFormatter.FormatAltitude()` directly (no `AltitudeDescription` discriminator). Each point carries `Type` (AirwayType), `Level` (High/Low), `Restriction` (None/Forward/Backward), inbound/outbound courses, `DistanceFrom` (nm), three altitude fields (`Minimum`, `Minimum2`, `Maximum`), and `Descriptions` flags.
 
 Response shape: `CombinedArrival` / `CombinedDeparture` / `CombinedApproach` live alongside their services; the shared `CombinedSequence` (transition name + `TransitionType` stringified from `sequence.Types`) lives in `Services/Models/CombinedSequence.cs` since all three services use it. Each sequence contains `Point`s (`Services/Models/Point.cs`) with nullable `Identifier`/`Latitude`/`Longitude`, altitude min/max, `LegType`, `Course`, and `Descriptions: string[]`. Note `sequence.Types` is plural in `arinc424` 0.3.x — renamed from `Type` during the upgrade — and `.ToString()` on it produces a comma-separated flags string (e.g. `"Runway, AreaNavigation"`), which is a breaking change from the single-value format pre-upgrade.
 

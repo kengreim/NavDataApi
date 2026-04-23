@@ -20,6 +20,8 @@ builder.Services.AddScoped<ArrivalService>();
 builder.Services.AddScoped<DepartureService>();
 builder.Services.AddScoped<ApproachService>();
 builder.Services.AddScoped<PointService>();
+builder.Services.AddScoped<AirportService>();
+builder.Services.AddScoped<AirwayService>();
 
 builder.Services.AddControllers();
 
